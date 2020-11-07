@@ -4,16 +4,30 @@ const {
   getUserByUsername,
   isEmptyObject,
   isPasswordCorrect,
+  getAllBooks,
+  getAllUsers,
+  addBook,
 } = require("./shared");
+const { uuid } = require("uuidv4");
 const app = express();
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}`));
 app.use(express.json());
 app.use(cors());
 
-app.get("/users", (req, res) => {});
+app.get("/users", (req, res) => {
+  getAllUsers().then((users) => {
+    if (users && users.length > 0) res.status(200).send({ users: users });
+    else res.status(500).send({ users: [] });
+  });
+});
 
-app.get("/books", (req, res) => {});
+app.get("/books", (req, res) => {
+  getAllBooks().then((books) => {
+    if (books && books.length > 0) res.status(200).send({ books: books });
+    else res.status(500).send({ books: [] });
+  });
+});
 
 app.post("/login", (req, res) => {
   let base64Encoding = req.headers.authorization.split(" ")[1];
@@ -38,4 +52,11 @@ app.get("/logout", (req, res) => {});
 
 app.get("/favorite", (req, res) => {});
 
-app.post("/book", (req, res) => {});
+app.post("/book", (req, res) => {
+  addBook({ name: req.body.name, author: req.body.author, id: uuid() }).then(
+    err => {
+      if (err) res.status(500).send({ message: "cannot add book" });
+      else res.status(200).send({ message: "book added" });
+    }
+  );
+});
