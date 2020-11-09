@@ -3,22 +3,23 @@ import { Grid, Paper, Typography } from "@material-ui/core";
 import "../styles.css";
 import { AppHeader } from "./AppHeader";
 
-const books = [
-  {
-    name: "Surrounded by idiots",
-    author: "Thomas Erikson",
-  },
-  {
-    name: "The Tipping Point",
-    author: "Malcolm Gladwell",
-  },
-  {
-    name: "Stillness is the key",
-    author: "Ryan Holiday",
-  },
-];
-
+const url ="/favorite";
 export const MyFavorite = () => {
+  const [favBooks, setFavBooks] = useState([]);
+  const history = useHistory();
+
+  const redirect = () => {
+    localStorage.clear();
+    history.push("/login");
+  };
+
+  useEffect(() => {
+    fetch(url)
+      .then((res) => ( res.status === 401 ? redirect() : res.json()))
+      .then((json) => (json ? setFavBooks([...json.books]): setFavBooks([])))
+      .catch((err) => console.log("Error fetching books ", err.message));
+  }, []);
+
   return (
     <div className="Content">
       <AppHeader tabValue={1} />

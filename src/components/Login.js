@@ -3,7 +3,7 @@ import { Grid, Typography, TextField, Button } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 let base64 = require("base-64");
 let headers = new Headers();
-const url = "http://localhost:5000/login";
+const url = "/login";
 
 export const Login = () => {
   const [userName, setUserName] = useState("");
@@ -20,8 +20,14 @@ export const Login = () => {
       "Basic " + base64.encode(userName + ":" + password)
     );
     fetch(url, { headers: headers, method: "POST" })
-      .then((res) => (res.status === 200 ? history.push("/books") : res.json()))
-      .then((json) => setLoginError(json.message))
+      .then((res) => {
+        if (res.status === 200) history.push("/books");
+        return res.json();
+      })
+      .then((result) => {
+        if(result.message) setLoginError(result.message);
+        else addAppSettings(result.username, result.role);
+      })
       .catch((err) => console.log("Error logging into app ", err.message));
   };
 
